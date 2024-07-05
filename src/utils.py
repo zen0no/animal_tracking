@@ -1,9 +1,11 @@
 import json
+import uuid
 import zipfile
 import os
 import shutil
 from typing import List
-from env.env import SPICES_FILE, TEMP_FOLDER
+from env.env import SPICES_FILE, DATA_FOLDER
+
 
 def extract_files(file) -> List[str]:
     """Extracts zip file to a temporary folder and returns a list of extracted file paths.
@@ -18,14 +20,16 @@ def extract_files(file) -> List[str]:
         zipfile.BadZipFile: If the file is not a zip file or it is corrupted.
         OSError: If there are issues with file extraction or creating the temporary folder.
     """
-    if not os.path.exists(TEMP_FOLDER):
-        os.makedirs(TEMP_FOLDER)
+    if not os.path.exists(DATA_FOLDER):
+        os.makedirs(DATA_FOLDER)
+
+    unique_name = uuid.uuid4().hex
+    os.makedirs(os.path.join(DATA_FOLDER, unique_name))
 
     extracted_files = []
-
     with zipfile.ZipFile(file, 'r') as zip_ref:
-        zip_ref.extractall(TEMP_FOLDER)
-        extracted_files = [os.path.join(TEMP_FOLDER, name) for name in zip_ref.namelist()]
+        zip_ref.extractall(os.path.join(DATA_FOLDER, unique_name))
+        extracted_files = [os.path.join(DATA_FOLDER, unique_name, name) for name in zip_ref.namelist()]
     
     return extracted_files
 
@@ -36,9 +40,9 @@ def clear_temp_data():
     Raises:
         OSError: If there are issues with deleting the temporary folder contents.
     """
-    if os.path.exists(TEMP_FOLDER):
-        shutil.rmtree(TEMP_FOLDER)
-        os.makedirs(TEMP_FOLDER)
+    if os.path.exists(DATA_FOLDER):
+        shutil.rmtree(DATA_FOLDER)
+        os.makedirs(DATA_FOLDER)
 
 
 def get_spices(filepath: str = SPICES_FILE) -> str:
