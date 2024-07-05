@@ -1,8 +1,9 @@
+import json
 import zipfile
 import os
 import shutil
 from typing import List
-from env.env import TEMP_FOLDER
+from env.env import SPICES_FILE, TEMP_FOLDER
 
 def extract_files(file) -> List[str]:
     """Extracts zip file to a temporary folder and returns a list of extracted file paths.
@@ -38,3 +39,43 @@ def clear_temp_data():
     if os.path.exists(TEMP_FOLDER):
         shutil.rmtree(TEMP_FOLDER)
         os.makedirs(TEMP_FOLDER)
+
+
+def get_spices(filepath: str = SPICES_FILE) -> str:
+    """
+    Reads a JSON file containing spices and returns them as a list of strings.
+
+    Args:
+        filepath (str): The path to the JSON file. Defaults to SPICES_FILE.
+
+    Returns:
+        list: A list of spices.
+
+    Raises:
+        FileNotFoundError: If the file specified by filepath is not found.
+        json.JSONDecodeError: If the file contains invalid JSON.
+        KeyError: If the key 'spices' is not found in the JSON file.
+    """
+    with open(filepath, 'r') as file:
+        data = json.load(file)
+        if "spices" not in data:
+            raise KeyError("The key 'spices' is not found in the JSON file.")
+        return data["spices"]
+
+
+def get_model_config():
+    """
+    Returns a JSON-formatted string representing the configuration for a YOLO model.
+
+    This function generates a dictionary with configuration parameters for a YOLO model and converts it to a formatted JSON string.
+
+    Returns:
+        str: A JSON-formatted string containing the YOLO model configuration.
+    """
+    yolo_config = {
+        "model": "yolov5",
+        "confidence_threshold": 0.5,
+        "nms_threshold": 0.4,
+        "input_size": (640, 640)
+    }
+    return json.dumps(yolo_config, indent=4)
