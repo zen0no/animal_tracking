@@ -44,9 +44,9 @@ def get_yolo_config():
     }
     return json.dumps(yolo_config, indent=4)
 
-with gr.Blocks(theme=gr.themes.Glass()) as demo:
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
     with gr.Tab("Обработка"):
-        file_input = gr.File(label="Загрузите ZIP архив с фотками", type="file")
+        file_input = gr.File(label="Загрузите ZIP архив с фотками", type="filepath")
         image_output = gr.Gallery(label="Примеры фотографий")
         dataframe_output = gr.Dataframe(label="Результаты обработки")
 
