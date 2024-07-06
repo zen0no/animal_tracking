@@ -3,11 +3,11 @@ import pandas as pd
 from ultralytics import YOLO
 from PIL.ExifTags import TAGS
 
-from env.env import SPICES_FILE
+from env.env import SPICES_FILE, WEIGHTS
 
 
 # Загрузка модели YOLOv8
-MODEL = YOLO("../weights/best.pt")
+MODEL = YOLO(WEIGHTS)
 
 def predict(model, images):
     classes = []

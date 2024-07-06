@@ -39,7 +39,7 @@ def process_interface(file):
     # return file info
     yield file_info, df, None, None, None
 
-    # reg_df = process_dataframe(df)
+    reg_df = process_dataframe(df)
 
     # convert detection to CSV 
     detection_csv_path = tempfile.mktemp(suffix=".csv")
@@ -47,12 +47,12 @@ def process_interface(file):
 
     # convert regulation to CSV
     regulation_csv_path = tempfile.mktemp(suffix=".csv")
-    df.to_csv(regulation_csv_path, index=False)
+    reg_df.to_csv(regulation_csv_path, index=False)
 
     # Update global variables
     DETECTION_DF = df
 
-    yield file_info, df, None , detection_csv_path, None
+    yield file_info, df, reg_df , detection_csv_path, regulation_csv_path
 
 
 def setting_interface():
