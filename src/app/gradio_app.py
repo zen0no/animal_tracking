@@ -1,3 +1,4 @@
+from collections import Counter
 import tempfile
 import gradio as gr
 import pandas as pd
@@ -8,7 +9,7 @@ from detection.predict import process_images
 from detection.utils import get_spices, get_model_config
 
 from registration.predict import process_dataframe, RESULT_COLUMN
-from registration.utils import init_result_df, fill_result_df, connect_dfs, INIT_COLUMNS
+from registration.utils import download_df, init_result_df, fill_result_df, connect_dfs, INIT_COLUMNS
 
 
 DETECTION_DF = pd.DataFrame()
@@ -26,7 +27,8 @@ def show_bboxes(id: int):
 
 
 def get_images(id: int):
-    row = REGISTRATION_DF.iloc[id]
+    id = DETECTION_DF.iloc[id]['reg_id']
+    row = REGISTRATION_DF.iloc[int(id)]
 
     images = [ (DETECTION_DF.iloc[det_id]['link'], f"id {det_id}")
         for det_id in row["ids"]
@@ -63,12 +65,8 @@ def process_interface(file):
     df, reg_df = connect_dfs(df, reg_df)
 
     # convert detection to CSV 
-    detection_csv_path = tempfile.mktemp(suffix=".csv")
-    df.to_csv(detection_csv_path, index=False)
-
-    # convert regulation to CSV
-    regulation_csv_path = tempfile.mktemp(suffix=".csv")
-    reg_df.drop(columns=["ids"], axis=1).to_csv(regulation_csv_path, index=False)
+    detection_csv_path = download_df(df)
+    regulation_csv_path = download_df(reg_df, drop_columns=["ids", "reg_id"])
 
     # Update global variables
     DETECTION_DF = df

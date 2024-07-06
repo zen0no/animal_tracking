@@ -1,3 +1,4 @@
+from collections import Counter
 import pandas as pd
 
 
@@ -55,4 +56,5 @@ def process_dataframe(df: pd.DataFrame):
         folder_regs['folder_name'] = name_folder
         overall_regs = pd.concat([overall_regs, folder_regs], ignore_index=True)
 
+    overall_regs['class'] = overall_regs['class'].apply(lambda x: Counter(x).most_common(1)[0][0])
     return overall_regs
