@@ -2,7 +2,7 @@ import tempfile
 import gradio as gr
 import pandas as pd
 
-from app.utils import extract_files, get_file_info
+from app.utils import extract_files, get_file_info, visualisation
 
 from detection.predict import process_images
 from detection.utils import get_spices, get_model_config
@@ -11,11 +11,23 @@ from registration.predict import process_dataframe, RESULT_COLUMN
 from registration.utils import init_result_df, fill_result_df, INIT_COLUMNS
 
 
+DETECTION_DF = pd.DataFrame()
+
+def show_bboxes(id: int):
+    row = DETECTION_DF.iloc[id]
+   
+    return visualisation(
+        row['link'],
+        row['bbox'],
+        row['class_predict']
+    )
+
 def visible_component(inputs):
-    return [gr.update(visible=True)]*5
+    return [gr.update(visible=True)]*4
 
 def process_interface(file):
-    gr.update(visible=True)
+    global DETECTION_DF
+
     images = extract_files(file)
     file_info = get_file_info(images)
 
@@ -36,7 +48,10 @@ def process_interface(file):
     # convert regualtion to SCV
     regulation_csv_path = tempfile.mktemp(suffix=".csv")
     df.to_csv(regulation_csv_path, index=False)
-    
+
+    # Update global variables
+    DETECTION_DF = df
+
     yield file_info, df, None , detection_csv_path, None
 
 
@@ -61,14 +76,22 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         file_input.upload(
             fn=visible_component,
             inputs=file_input, 
-            outputs=[file_info, detection_output, registration_output, det_download, reg_download]
+            outputs=[detection_output, registration_output, det_download, reg_download]
         ).then(
             process_interface, 
             inputs=file_input, 
             outputs=[file_info, detection_output, registration_output, det_download, reg_download])
 
     with gr.Tab("Визуализация"):
-        image_output = gr.Gallery(label="Примеры фотографий")
+        image_output = gr.AnnotatedImage()
+        number = gr.Number(minimum=0, maximum=0, interactive=True)
+        section_btn = gr.Button("Identify Sections")
+        section_btn.click(
+            lambda value: gr.update(maximum=len(DETECTION_DF)-1),
+            inputs= number,
+            outputs=number
+        ).then(show_bboxes, number, image_output)
+
 
     with gr.Tab("Настройки"):
         with gr.Row():

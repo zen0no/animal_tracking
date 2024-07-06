@@ -1,4 +1,4 @@
-import json
+from PIL import Image
 import uuid
 import zipfile
 import os
@@ -69,3 +69,16 @@ def get_file_info(files: list[str]) -> dict:
                     trap_counts[trap_folder] += 1
 
     return {"фотоловушки": trap_counts}
+
+
+def visualisation(path, boxes, labels):
+    img = Image.open(path)
+    sections = []
+    for label, (x1, y1, x2, y2) in zip(labels, boxes):
+        x1 *= img.size[1]
+        y1 *= img.size[0]
+        x2 *= img.size[1]
+        y2 *= img.size[0]
+        sections.append((map(int, (x1, y1, x2, y2)), label))
+
+    return (img, sections)
