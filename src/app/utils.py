@@ -75,10 +75,10 @@ def visualisation(path, boxes, labels):
     img = Image.open(path)
     sections = []
     for label, (x1, y1, x2, y2) in zip(labels, boxes):
-        x1 *= img.size[1]
-        y1 *= img.size[0]
-        x2 *= img.size[1]
-        y2 *= img.size[0]
+        x1 *= img.size[0]
+        y1 *= img.size[1]
+        x2 *= img.size[0]
+        y2 *= img.size[1]
         sections.append((map(int, (x1, y1, x2, y2)), label))
 
     return (img, sections)

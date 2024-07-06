@@ -27,3 +27,8 @@ def fill_result_df(df: pd.DataFrame, images: list[str]) -> pd.DataFrame:
         df.loc[len(df)] = [name_folder, class_predict, date_registration, bbox, id, count, link]
 
     return df
+
+def connect_dfs(df, reg_df):
+    """Add reqistration id to dataframes"""
+
+    return df, reg_df

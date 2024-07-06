@@ -2,7 +2,7 @@ import pandas as pd
 
 
 TRESHOLD = 30 * 60
-RESULT_COLUMN = ['folder_name', 'class', 'start', 'end', 'max_count', 'id']
+RESULT_COLUMN = ['folder_name', 'class', 'date_registration_start', 'date_registration_end', 'count', 'ids']
 
 
 def convert_to_seconds(dataframe):
@@ -25,13 +25,13 @@ def get_registration(data, ind):
             ids.append(data.loc[i, 'id'])
 
     return {'class': data.loc[ind, 'class_predict'],
-            'start': data.loc[ind, 'date_registration'],
-            'end': data.loc[end, 'date_registration'],
-            'max_count': max_count,
-            'id': ids}
+            'date_registration_start': data.loc[ind, 'date_registration'],
+            'date_registration_end': data.loc[end, 'date_registration'],
+            'count': max_count,
+            'ids': ids}
 
 def handle(cam):
-    folder_regs = pd.DataFrame(columns=['class', 'start', 'end', 'max_count', 'id'])
+    folder_regs = pd.DataFrame(columns=['class', 'date_registration_start', 'date_registration_end', 'count', 'ids'])
     while cam['count'].sum() > 0:
         ind = cam.index[cam['count'] > 0].tolist()[0]
         new_reg = get_registration(cam, ind)
