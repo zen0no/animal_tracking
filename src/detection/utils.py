@@ -7,7 +7,7 @@ from env.env import SPICES_FILE, YOLO_PATH
 
 
 # Загрузка модели YOLOv8
-MODEL = YOLO("YOLO_PATH")
+MODEL = YOLO(YOLO_PATH)
 
 def predict(model, images):
     classes = []
