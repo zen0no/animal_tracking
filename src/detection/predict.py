@@ -1,5 +1,3 @@
-import pandas as pd
-
 def predict(model, images):
     classes = []
     bboxes = []
@@ -8,13 +6,13 @@ def predict(model, images):
     for i, r in enumerate(results):
         bb = r.boxes
         xyxyn = list(bb.xyxyn.detach().numpy())
-        cls = list(bb.cls)
+        bb_class = list(bb.cls)
         _idx = [i] * bb.cls.shape[0]
         
-        classes.extend(cls)
+        classes.extend(bb_class)
         bboxes.extend(xyxyn)
         idx.extend(_idx)
 
-    return pd.DataFrame.from_dict({
-        'id': idx, 'bbox': bboxes, 'class_predict': cls
-    })
+    return {
+        'id': idx, 'bbox': bboxes, 'class_predict': bb_class
+    }

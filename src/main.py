@@ -1,4 +1,4 @@
-from api.gradio_app import demo
+from app.gradio_app import demo
 
 
 demo.launch(server_name="127.0.0.1", 

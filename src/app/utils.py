@@ -4,7 +4,7 @@ import zipfile
 import os
 import shutil
 from typing import List
-from env.env import SPICES_FILE, DATA_FOLDER
+from env.env import DATA_FOLDER
 
 
 def extract_files(file) -> List[str]:
@@ -29,7 +29,7 @@ def extract_files(file) -> List[str]:
     extracted_files = []
     with zipfile.ZipFile(file, 'r') as zip_ref:
         zip_ref.extractall(os.path.join(DATA_FOLDER, unique_name))
-        extracted_files = [os.path.join(DATA_FOLDER, unique_name, name) for name in zip_ref.namelist()]
+        extracted_files = [os.path.join(DATA_FOLDER, unique_name, name) for name in zip_ref.namelist() if not name.endswith('/')]
     
     return extracted_files
 
@@ -43,28 +43,6 @@ def clear_temp_data():
     if os.path.exists(DATA_FOLDER):
         shutil.rmtree(DATA_FOLDER)
         os.makedirs(DATA_FOLDER)
-
-
-def get_spices(filepath: str = SPICES_FILE) -> str:
-    """
-    Reads a JSON file containing spices and returns them as a list of strings.
-
-    Args:
-        filepath (str): The path to the JSON file. Defaults to SPICES_FILE.
-
-    Returns:
-        list: A list of spices.
-
-    Raises:
-        FileNotFoundError: If the file specified by filepath is not found.
-        json.JSONDecodeError: If the file contains invalid JSON.
-        KeyError: If the key 'spices' is not found in the JSON file.
-    """
-    with open(filepath, 'r') as file:
-        data = json.load(file)
-        if "spices" not in data:
-            raise KeyError("The key 'spices' is not found in the JSON file.")
-        return data["spices"]
 
 
 def get_model_config():
@@ -83,3 +61,29 @@ def get_model_config():
         "input_size": (640, 640)
     }
     return json.dumps(yolo_config, indent=4)
+
+
+def get_file_info(files: list[str]) -> dict:
+    """Returns a dictionary with the number of files in each trap folder.
+
+    Args:
+        files (List[str]): A list of file paths.
+
+    Returns:
+        Dict[str, Dict[str, int]]: A dictionary with the count of files in each folder.
+    """
+    trap_counts = {}
+
+    for file in files:
+        # Extract the folder name (e.g., '1', '2')
+        parts = file.split(os.sep)
+        if len(parts) > 2:
+            trap_folder = parts[-2]
+            if trap_folder.isdigit():
+                if trap_folder not in trap_counts:
+                    trap_counts[trap_folder] = 0
+                # Increment count for the trap folder
+                if not file.endswith('/'):
+                    trap_counts[trap_folder] += 1
+
+    return {"фотоловушки": trap_counts}
