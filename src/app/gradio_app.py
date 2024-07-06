@@ -12,6 +12,8 @@ from registration.utils import init_result_df, fill_result_df, INIT_COLUMNS
 
 
 DETECTION_DF = pd.DataFrame()
+REGISTRATION_DF = pd.DataFrame()
+
 
 def show_bboxes(id: int):
     row = DETECTION_DF.iloc[id]
@@ -22,11 +24,27 @@ def show_bboxes(id: int):
         row['class_predict']
     )
 
+
+def get_images(id: int):
+    row = REGISTRATION_DF.iloc[id]
+
+    images = [ (DETECTION_DF.iloc[det_id]['link'], f"id {det_id}")
+        for det_id in row["id"]
+    ]
+
+    return images
+
+
+def visual_interface(id: int):
+    return show_bboxes(id), get_images(id) 
+
+
 def visible_component(inputs):
     return [gr.update(visible=True)]*4
 
+
 def process_interface(file):
-    global DETECTION_DF
+    global DETECTION_DF, REGISTRATION_DF
 
     images = extract_files(file)
     file_info = get_file_info(images)
@@ -51,6 +69,7 @@ def process_interface(file):
 
     # Update global variables
     DETECTION_DF = df
+    REGISTRATION_DF = reg_df
 
     yield file_info, df, reg_df , detection_csv_path, regulation_csv_path
 
@@ -80,21 +99,28 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         ).then(
             process_interface, 
             inputs=file_input, 
-            outputs=[file_info, detection_output, registration_output, det_download, reg_download])
+            outputs=[file_info, detection_output, registration_output, det_download, reg_download]
+        )
 
     with gr.Tab("Визуализация"):
-        image_output = gr.AnnotatedImage()
-        number = gr.Number(minimum=0, maximum=0, interactive=True)
-        section_btn = gr.Button("Identify Sections")
+        with gr.Row():
+            with gr.Column():
+                image_output = gr.AnnotatedImage()
+                number = gr.Number(minimum=0, maximum=0, interactive=True)
+                section_btn = gr.Button("Identify Sections")
 
-        def update_maximum(value):
-            return gr.update(maximum=len(DETECTION_DF) - 1)
+                def update_maximum(value):
+                    return gr.update(maximum=len(DETECTION_DF) - 1)
 
-        section_btn.click(
-            update_maximum,
-            inputs=None,
-            outputs=number
-        ).then(show_bboxes, number, image_output)
+            with gr.Column():
+                gallery = gr.Gallery(label="Также в регистрации", 
+                           show_label=True)
+            
+            section_btn.click(
+                    update_maximum,
+                    inputs=None,
+                    outputs=number
+                ).then(visual_interface, number, [image_output, gallery])
 
 
     with gr.Tab("Настройки"):
