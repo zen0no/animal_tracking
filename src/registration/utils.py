@@ -1,6 +1,8 @@
 import pandas as pd
 
 
+INIT_COLUMNS = ["name_folder", "class_predict", "date_registration", "bbox", "id", "count", "link"]
+
 def convert_to_seconds(dataframe):
     dataframe['date_registration'] = pd.to_datetime(dataframe['date_registration'])
     dataframe['sec_registration'] = (((dataframe['date_registration'].dt.month * 12 +
@@ -12,8 +14,7 @@ def convert_to_seconds(dataframe):
 
 def init_result_df() -> pd.DataFrame:
     """Create a dataframe"""
-    columns = ["name_folder", "class_predict", "date_registration", "bbox", "id", "count", "link"]
-    df = pd.DataFrame(columns=columns)
+    df = pd.DataFrame(columns=INIT_COLUMNS)
 
     return df
 

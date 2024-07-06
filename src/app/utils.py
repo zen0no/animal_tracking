@@ -45,24 +45,6 @@ def clear_temp_data():
         os.makedirs(DATA_FOLDER)
 
 
-def get_model_config():
-    """
-    Returns a JSON-formatted string representing the configuration for a YOLO model.
-
-    This function generates a dictionary with configuration parameters for a YOLO model and converts it to a formatted JSON string.
-
-    Returns:
-        str: A JSON-formatted string containing the YOLO model configuration.
-    """
-    yolo_config = {
-        "model": "yolov5",
-        "confidence_threshold": 0.5,
-        "nms_threshold": 0.4,
-        "input_size": (640, 640)
-    }
-    return json.dumps(yolo_config, indent=4)
-
-
 def get_file_info(files: list[str]) -> dict:
     """Returns a dictionary with the number of files in each trap folder.
 

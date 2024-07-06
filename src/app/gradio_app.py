@@ -1,26 +1,43 @@
+import tempfile
 import gradio as gr
 import pandas as pd
-import time
 
-from app.utils import get_model_config, extract_files, get_file_info
-from detection.utils import get_spices
-from registration.utils import init_result_df, fill_result_df
+from app.utils import extract_files, get_file_info
 
+from detection.predict import process_images
+from detection.utils import get_spices, get_model_config
+
+from registration.predict import process_dataframe, RESULT_COLUMN
+from registration.utils import init_result_df, fill_result_df, INIT_COLUMNS
+
+
+def visible_component(inputs):
+    return [gr.update(visible=True)]*5
 
 def process_interface(file):
+    gr.update(visible=True)
     images = extract_files(file)
     file_info = get_file_info(images)
 
     # create DataFrame
     df = init_result_df()
     df = fill_result_df(df, images=images)
+    df = process_images(df)
 
     # return file info
-    yield file_info, [], df
+    yield file_info, df, None, None, None
 
+    # reg_df = process_dataframe(df)
 
-    time.sleep(2)
-    yield file_info, [], df
+    # convert detection to CSV 
+    detection_csv_path = tempfile.mktemp(suffix=".csv")
+    df.to_csv(detection_csv_path, index=False)
+
+    # convert regualtion to SCV
+    regulation_csv_path = tempfile.mktemp(suffix=".csv")
+    df.to_csv(regulation_csv_path, index=False)
+    
+    yield file_info, df, None , detection_csv_path, None
 
 
 def setting_interface():
@@ -31,11 +48,27 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     with gr.Tab("Обработка"):
         with gr.Row():
             file_input = gr.File(label="Загрузите ZIP архив фотоловушек", type="filepath")
-            file_info = gr.JSON(label="Информация загруженного архива")
-        image_output = gr.Gallery(label="Примеры фотографий")
-        dataframe_output = gr.Dataframe(label="Результаты обработки", type="pandas", wrap=True)
+            file_info = gr.JSON(label="Информация загруженного архива")            
 
-        file_input.upload(process_interface, inputs=file_input, outputs=[file_info, image_output, dataframe_output])
+        detection_output = gr.Dataframe(label="Результаты детекции и классификации", wrap=True, headers=INIT_COLUMNS, visible=False)
+        registration_output = gr.Dataframe(label="Результаты регистрации", wrap=True, headers=RESULT_COLUMN, visible=False)
+
+        with gr.Row():
+            det_download = gr.File(label="Скачать результаты детекции и классификации", visible=False)
+            reg_download = gr.File(label="Скачать результаты регистрации", visible=False)
+
+
+        file_input.upload(
+            fn=visible_component,
+            inputs=file_input, 
+            outputs=[file_info, detection_output, registration_output, det_download, reg_download]
+        ).then(
+            process_interface, 
+            inputs=file_input, 
+            outputs=[file_info, detection_output, registration_output, det_download, reg_download])
+
+    with gr.Tab("Визуализация"):
+        image_output = gr.Gallery(label="Примеры фотографий")
 
     with gr.Tab("Настройки"):
         with gr.Row():
