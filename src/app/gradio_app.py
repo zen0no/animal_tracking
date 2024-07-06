@@ -108,7 +108,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
             with gr.Column():
                 image_output = gr.AnnotatedImage()
                 number = gr.Number(minimum=0, maximum=0, interactive=True)
-                section_btn = gr.Button("Identify Sections")
+                section_btn = gr.Button("Визуализировать объект.")
 
                 def update_maximum(value):
                     return gr.update(maximum=len(DETECTION_DF) - 1)
