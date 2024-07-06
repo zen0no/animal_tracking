@@ -3,11 +3,11 @@ import pandas as pd
 from ultralytics import YOLO
 from PIL.ExifTags import TAGS
 
-from env.env import SPICES_FILE
+from env.env import SPICES_FILE, YOLO_PATH
 
 
 # Загрузка модели YOLOv8
-MODEL = YOLO("../weights/best.pt")
+MODEL = YOLO("YOLO_PATH")
 
 def predict(model, images):
     classes = []
@@ -78,11 +78,5 @@ def get_model_config(model=MODEL):
     Returns:
         str: A JSON-formatted string containing the YOLO model configuration.
     """
-    config = {
-        "input_size": model.input_size if hasattr(model, 'input_size') else "unknown",
-        "stride": model.stride if hasattr(model, 'stride') else "unknown",
-        "conf_thres": model.conf if hasattr(model, 'conf') else "unknown",
-        "iou_thres": model.iou if hasattr(model, 'iou') else "unknown",
-        "device": str(model.device) if hasattr(model, 'device') else "unknown",
-    }
+    config = model.overrides
     return json.dumps(config, indent=4)
