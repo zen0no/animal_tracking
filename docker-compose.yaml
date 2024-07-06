@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  animal_tracking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATA_FOLDER: data
+      SPICES_FILE: src/env/spices.json
+      BATCH_SIZE: 32
+      YOLO_PATH: weights/yolo.pt
+    volumes:
+      - ./data:/app/data
+      - ./weights:/app/weights
+      - ./src/env/spices.json:/app/src/env/spices.json
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
