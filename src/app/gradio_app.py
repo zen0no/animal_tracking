@@ -45,7 +45,7 @@ def process_interface(file):
     detection_csv_path = tempfile.mktemp(suffix=".csv")
     df.to_csv(detection_csv_path, index=False)
 
-    # convert regualtion to SCV
+    # convert regulation to CSV
     regulation_csv_path = tempfile.mktemp(suffix=".csv")
     df.to_csv(regulation_csv_path, index=False)
 
@@ -86,9 +86,13 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         image_output = gr.AnnotatedImage()
         number = gr.Number(minimum=0, maximum=0, interactive=True)
         section_btn = gr.Button("Identify Sections")
+
+        def update_maximum(value):
+            return gr.update(maximum=len(DETECTION_DF) - 1)
+
         section_btn.click(
-            lambda value: gr.update(maximum=len(DETECTION_DF)-1),
-            inputs= number,
+            update_maximum,
+            inputs=None,
             outputs=number
         ).then(show_bboxes, number, image_output)
 
