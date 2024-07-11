@@ -1,3 +1,11 @@
 gradio
 ultralytics
+numpy
 pandas
+pyyml
+pillow
+markupsafe
+jinja2
+click
+matplotlib
+opencv-python
